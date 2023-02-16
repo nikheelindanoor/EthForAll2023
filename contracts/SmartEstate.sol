@@ -1,11 +1,29 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-contract SmartEstate {
-    address owner;
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
-    constructor() {
-        owner = msg.sender;
+contract SmartEstate is ERC721URIStorage {
+    address owner;
+    using Counters for Counters.Counter;
+    Counters.Counter private rentIds;
+
+    struct Payment {
+        uint256 rentId;
+        uint256 amount;
+        uint256 date;
+    }
+
+    struct RentAggrement {
+        uint256 plotId;
+        uint256 renterId;
+        uint256 startDate;
+        uint256 endDate;
+        uint256 rentAmount;
+        string description;
+        string cid;
     }
 
     struct User {
@@ -62,34 +80,35 @@ contract SmartEstate {
 
     mapping(address => uint256) userAddressToIdMapping;
 
+    constructor() ERC721("fdjkls", "jlks") {
+        owner = msg.sender;
+    }
+
     function isOwner() public view returns (bool) {
         return owner == msg.sender;
     }
 
-    function checkAvailableStocksForSeller(uint256 stockId, uint256 sellable)
-        public
-        view
-        returns (bool)
-    {
+    function checkAvailableStocksForSeller(
+        uint256 stockId,
+        uint256 sellable
+    ) public view returns (bool) {
         if (stocks[stockId].sellable + sellable <= stocks[stockId].quantity)
             return true;
         else return false;
     }
 
-    function checkAvailableStocksForBuyer(uint256 stockId, uint256 buyable)
-        public
-        view
-        returns (bool)
-    {
+    function checkAvailableStocksForBuyer(
+        uint256 stockId,
+        uint256 buyable
+    ) public view returns (bool) {
         if (stocks[stockId].sellable - buyable >= 0) return true;
         else return false;
     }
 
-    function compareStrings(string memory _string1, string memory _string2)
-        public
-        pure
-        returns (bool)
-    {
+    function compareStrings(
+        string memory _string1,
+        string memory _string2
+    ) public pure returns (bool) {
         return (keccak256(abi.encodePacked((_string1))) ==
             keccak256(abi.encodePacked((_string2))));
     }
@@ -115,11 +134,9 @@ contract SmartEstate {
 
     // FETCH USER FUCNTIONS
 
-    function fetchUserByAddress(address addr)
-        public
-        view
-        returns (User memory)
-    {
+    function fetchUserByAddress(
+        address addr
+    ) public view returns (User memory) {
         for (uint256 i = 0; i < userCount; i++) {
             if (users[i].userAdd == addr) {
                 return users[i];
@@ -141,11 +158,9 @@ contract SmartEstate {
 
     // FETCH USER REQUESTS FUNCTIONS
 
-    function fetchUserRequestByAddress(address addr)
-        public
-        view
-        returns (User memory)
-    {
+    function fetchUserRequestByAddress(
+        address addr
+    ) public view returns (User memory) {
         for (uint256 i = 0; i < userRequestCount; i++) {
             if (userRequests[i].userAdd == addr) {
                 return userRequests[i];
@@ -437,14 +452,157 @@ contract SmartEstate {
         }
     }
 
-    function fetchAllStocksForPlot(uint256 plotId) public view returns(Stocks[] memory){
+    function fetchAllStocksForPlot(
+        uint256 plotId
+    ) public view returns (Stocks[] memory) {
         Stocks[] memory stockList = new Stocks[](stockCount);
-        for(uint256 i=0;i<stockCount;i++){
-            if(stocks[i].plotId==plotId){
+        for (uint256 i = 0; i < stockCount; i++) {
+            if (stocks[i].plotId == plotId) {
                 Stocks storage tempStock = stocks[i];
                 stockList[i] = tempStock;
             }
         }
         return stockList;
+    }
+
+    function mint(
+        uint256 plotId,
+        uint256 renterId,
+        uint256 months,
+        uint256 rentAmount,
+        string memory description,
+        string memory cid
+    ) pubilc {
+        rentIds.increment();
+        uint256 newRentId = rentIds.current();
+
+        _mint(msg.sender, newRentId);
+        _setTokenURI(newRentId, cid);
+
+        rentAggrements[newRentId] = RentAggrement({
+            plotId: plotId,
+            renterId: userAddressToIdMapping[msg.sender],
+            startDate: block.timestamp,
+            endDate: block.timestamp + months * 30 days,
+            description: description,
+            cid: cid
+        });
+    }
+
+    function fetchAllRentAggrements(
+        uint256 userId
+    ) public view returns (RentAggrement[] memory) {
+        uint256 count = 0;
+        uint256 totalCount = rentIds.current();
+        for (uint256 i = 1; i <= totalCount; i++) {
+            if (rentAggrements[i].renterId == userId) {
+                count += 1;
+            }
+        }
+
+        RentAggrement[] memory result = new RentAggrement[](count);
+        count = 0;
+        for (uint256 i = 1; i <= totalCount; i++) {
+            if (rentAggrements[i].renterId == userId) {
+                RentAggrement storage curr = rentAggrements[i];
+                result[count] = curr;
+                count += 1;
+            }
+        }
+
+        return result;
+    }
+
+    function fetchAllUserPayments(
+        uint256 userId
+    ) public view returns (Payment[] memory) {
+        uint256 count = 0;
+        for (uint256 i = 1; i <= paymentCount; i++) {
+            if (rentAggrements[paymentCount[i].rentId].renterId == userId) {
+                count += 1;
+            }
+        }
+
+        Payment[] memory result = new Payment[](count);
+        count = 0;
+        for (uint256 i = 1; i <= totalCount; i++) {
+            if (rentAggrements[paymentCount[i].rentId].renterId == userId) {
+                Payment storage curr = payments[i];
+                result[count] = curr;
+                count += 1;
+            }
+        }
+
+        return result;
+    }
+
+    function payRent(uint256 rentId) public payable {
+        require(
+            msg.value >= rentAggrements[rentId].rentAmount,
+            "Please give the minimum amount needed!"
+        );
+        uint256 i = paymentCount - 1;
+        for (; i >= 0; i--) {
+            if (
+                rentId == payments[i].rentId &&
+                userAddressToIdMapping[msg.sender] ==
+                rent[payments[i].rentId].renterId
+            ) {
+                break;
+            }
+        }
+
+        if (block.timestamp - payments[i].date < 30) {
+            revert();
+        }
+
+        // TODO: pay individual owner their rent share
+        for (uint256 i = 0; i < stockCount; i++) {
+            if (stocks[i].plotId == rentAggrements[rentId].plotId) {
+                payable(address(this)).transfer(
+                    (stocks[i].quantity /
+                        plots[stocks[i].plotId].totalQuantity) * msg.value
+                );
+                payable(users[stocks[i].userId].userAdd).transfer(
+                    (stocks[i].quantity /
+                        plots[stocks[i].plotId].totalQuantity) * msg.value
+                );
+            }
+        }
+
+        payments[paymentCount++] = Payment({
+            rentId: rentId,
+            date: block.timeStamp,
+            amount: msg.value
+        });
+    }
+
+    function fetchRentAggrementById(
+        uint256 rentId
+    ) public view returns (RentAggrement memory) {
+        return rentAggrements[rentId];
+    }
+
+    function fetchAllPaymentByRentID(
+        uint256 rentId
+    ) public view returns (Payment[] memory) {
+        uint256 count = 0;
+        for (uint256 i = 1; i <= paymentCount; i++) {
+            if (paymentCount[i].rentId == rentId) {
+                count += 1;
+            }
+        }
+
+        Payment[] memory result = new Payment[](count);
+        count = 0;
+        for (uint256 i = 1; i <= totalCount; i++) {
+            if (paymentCount[i].rentId == rentId) {
+                Payment storage curr = payments[i];
+                result[count] = curr;
+                count += 1;
+            }
+        }
+
+        return result;
     }
 }
