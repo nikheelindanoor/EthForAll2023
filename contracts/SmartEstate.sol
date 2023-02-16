@@ -37,16 +37,7 @@ contract SmartEstate {
         uint256 timestamp;
         uint256 plotId;
         int8 state; // 0:PENDING / 1:VALIDATED / 2:REJECTED
-        int8 transacType; // 0: sell 1: buy
     }
-
-    // struct Pending {
-    //     uint256 source;
-    //     uint256 quantity;
-    //     uint256 plotId;
-    //     uint256 timestamp;
-    //     bool state;
-    // }
 
     struct Stocks {
         uint256 userId;
@@ -71,6 +62,10 @@ contract SmartEstate {
 
     mapping(address => uint256) userAddressToIdMapping;
 
+    function isOwner() public view returns (bool) {
+        return owner == msg.sender;
+    }
+
     function checkAvailableStocksForSeller(uint256 stockId, uint256 sellable)
         public
         view
@@ -89,8 +84,6 @@ contract SmartEstate {
         if (stocks[stockId].sellable - buyable >= 0) return true;
         else return false;
     }
-
-    // mapping(uint256 => uint256)
 
     function compareStrings(string memory _string1, string memory _string2)
         public
@@ -118,6 +111,97 @@ contract SmartEstate {
         });
 
         userRequestCount += 1;
+    }
+
+    // FETCH USER FUCNTIONS
+
+    function fetchUserByAddress(address addr)
+        public
+        view
+        returns (User memory)
+    {
+        for (uint256 i = 0; i < userCount; i++) {
+            if (users[i].userAdd == addr) {
+                return users[i];
+            }
+        }
+        revert();
+    }
+
+    function fetchAllUsers() public view returns (User[] memory) {
+        User[] memory userList = new User[](userCount);
+
+        for (uint256 i = 0; i < userCount; i++) {
+            User storage tempUser = users[i];
+            userList[i] = tempUser;
+        }
+
+        return userList;
+    }
+
+    // FETCH USER REQUESTS FUNCTIONS
+
+    function fetchUserRequestByAddress(address addr)
+        public
+        view
+        returns (User memory)
+    {
+        for (uint256 i = 0; i < userRequestCount; i++) {
+            if (userRequests[i].userAdd == addr) {
+                return userRequests[i];
+            }
+        }
+        revert();
+    }
+
+    function fetchAllUserRequests() public view returns (User[] memory) {
+        User[] memory userRequestList = new User[](userRequestCount);
+
+        for (uint256 i = 0; i < userRequestCount; i++) {
+            User storage tempUserRequest = userRequests[i];
+            userRequestList[i] = tempUserRequest;
+        }
+
+        return userRequestList;
+    }
+
+    //  FETCH FOR PLOTS & REQUESTS
+
+    function fetchAllPlotRequests() public view returns (Plot[] memory) {
+        Plot[] memory plotRequestList = new Plot[](plotRequestCount);
+
+        for (uint256 i = 0; i < plotRequestCount; i++) {
+            Plot storage tempPlotRequest = plotRequests[i];
+            plotRequestList[i] = tempPlotRequest;
+        }
+
+        return plotRequestList;
+    }
+
+    function fetchAllPlots() public view returns (Plot[] memory) {
+        Plot[] memory plotList = new Plot[](plotCount);
+
+        for (uint256 i = 0; i < plotCount; i++) {
+            Plot storage tempPlot = plots[i];
+            plotList[i] = tempPlot;
+        }
+
+        return plotList;
+    }
+
+    // FETCH FOR TRANSACTION & REQUESTS
+
+    function fetchAllTransactions() public view returns (Transaction[] memory) {
+        Transaction[] memory transactionList = new Transaction[](
+            transactionCount
+        );
+
+        for (uint256 i = 0; i < plotCount; i++) {
+            Transaction storage tempTransaction = transactions[i];
+            transactionList[i] = tempTransaction;
+        }
+
+        return transactionList;
     }
 
     function addPlot(
@@ -215,9 +299,7 @@ contract SmartEstate {
         uint256 quantity,
         uint256 price,
         uint256 timestamp,
-        uint256 plotId,
-        // int8 state,
-        int8 transacType
+        uint256 plotId
     ) public returns (uint256) {
         transactions[transactionCount] = Transaction({
             source: source,
@@ -226,8 +308,7 @@ contract SmartEstate {
             price: price,
             timestamp: timestamp,
             plotId: plotId,
-            state: 0,
-            transacType: transacType
+            state: 0
         });
         // validateTransaction(transactionCount);
 
@@ -246,6 +327,13 @@ contract SmartEstate {
     }
 
     // REQUEST TO BUY
+    function requestToBuyStocks(
+        address target,
+        uint256 quantityToBuy,
+        uint256 price,
+        uint256 plotId,
+        uint256 sellQuantity
+    ) public {}
 
     function buyStocks(
         uint256 stockId,
@@ -261,8 +349,7 @@ contract SmartEstate {
             quantityToBuy,
             price,
             block.timestamp,
-            plotId,
-            1
+            plotId
         );
         if (!checkAvailableStocksForBuyer(stockId, quantityToBuy))
             rejectTransaction(transacId);
@@ -298,7 +385,9 @@ contract SmartEstate {
         }
     }
 
-    function sellStocks(
+    // Owner of plot transfers ownership in the form of some stocks
+
+    function transferOwnershipOfStocks(
         uint256 stockId,
         address target,
         uint256 quantityToSell,
@@ -312,8 +401,7 @@ contract SmartEstate {
             quantityToSell,
             price,
             block.timestamp,
-            plotId,
-            0
+            plotId
         );
         if (!checkAvailableStocksForBuyer(stockId, quantityToSell))
             rejectTransaction(transacId);
@@ -321,10 +409,10 @@ contract SmartEstate {
             uint256 i = 0;
             for (i = 0; i < stockCount; i++) {
                 if (stocks[i].userId == userAddressToIdMapping[msg.sender]) {
-                    if (stocks[i].quantity + quantityToBuy > sellQuantity) {
-                        stocks[i].quantity += quantityToBuy;
-                        stocks[i].sellable += quantityToBuy;
-                        updateBuyableStocks(stockId, quantityToBuy);
+                    if (stocks[i].quantity + quantityToSell > sellQuantity) {
+                        stocks[i].quantity += quantityToSell;
+                        stocks[i].sellable += quantityToSell;
+                        updateBuyableStocks(stockId, quantityToSell);
                         validateTransaction(transacId);
                     } else {
                         rejectTransaction(transacId);
@@ -332,12 +420,12 @@ contract SmartEstate {
                 }
             }
             if (i == stockCount) {
-                if (quantityToBuy > sellQuantity) {
-                    updateBuyableStocks(stockId, quantityToBuy);
+                if (quantityToSell > sellQuantity) {
+                    updateBuyableStocks(stockId, quantityToSell);
                     stocks[stockCount] = Stocks({
                         userId: userAddressToIdMapping[msg.sender],
                         plotId: plotId,
-                        quantity: quantityToBuy,
+                        quantity: quantityToSell,
                         sellable: sellQuantity
                     });
                     stockCount += 1;
@@ -347,5 +435,16 @@ contract SmartEstate {
                 }
             }
         }
+    }
+
+    function fetchAllStocksForPlot(uint256 plotId) public view returns(Stocks[] memory){
+        Stocks[] memory stockList = new Stocks[](stockCount);
+        for(uint256 i=0;i<stockCount;i++){
+            if(stocks[i].plotId==plotId){
+                Stocks storage tempStock = stocks[i];
+                stockList[i] = tempStock;
+            }
+        }
+        return stockList;
     }
 }
