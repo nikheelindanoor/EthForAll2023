@@ -6,25 +6,32 @@ import { useCallback, useState, useEffect, useRef } from "react";
 const Dashboard = () => {
   const navigate = useNavigate();
 
-    const holdings = [{
-        plotName: "ABCDE",
-        owner: "Atharva Patil",
-        percentShare: 3.5,
-        rent: "60,000"
-    }];
-    const sellings = [{
-        plotName: "ABCDEF",
-        percentDistributed: 85.6,
-        numOfInvestors: 8
-    }];
+  const holdings = [
+    {
+      plotName: "ABCDE",
+      owner: "Atharva Patil",
+      percentShare: 3.5,
+      rent: "60,000",
+    },
+  ];
+  const sellings = [
+    {
+      plotName: "ABCDEF",
+      percentDistributed: 85.6,
+      numOfInvestors: 8,
+    },
+  ];
+
+  const handleNavigateToPlots = () => {
+    navigate("/plots");
+  };
 
   return (
     <>
       <div className={styles.studentDashboardContainer}>
         <div className={styles.dashboardBox}>
           <div className={styles.heading}>
-            Welcome{" "}
-            <span className={styles.accountName}>Ravi Maurya</span>
+            Welcome <span className={styles.accountName}>Ravi Maurya</span>
           </div>
 
           <div className={styles.detailsBox}>
@@ -40,16 +47,17 @@ const Dashboard = () => {
           </div>
 
           <div className={styles.detailsBox}>
-          <div className={styles.detailsHeading}>
-							<span>My Holdings</span>
-							<div>
-								<button
-									className={styles.buyNewHoldingsBtn}
-								>
-									Buy Holdings
-								</button>
-							</div>
-						</div>
+            <div className={styles.detailsHeading}>
+              <span>My Holdings</span>
+              <div>
+                <button
+                  className={styles.buyNewHoldingsBtn}
+                  onClick={handleNavigateToPlots}
+                >
+                  Buy Holdings
+                </button>
+              </div>
+            </div>
             {holdings.length > 0 ? (
               <>
                 <div className={styles.docCardHeader}>
@@ -79,17 +87,13 @@ const Dashboard = () => {
                       <span className={styles.docCardContent}>
                         {item.percentShare} %
                       </span>
-                      <span className={styles.docCardContent}>
-                        {item.rent}
-                      </span>
+                      <span className={styles.docCardContent}>{item.rent}</span>
                     </div>
                   );
                 })}
               </>
             ) : (
-              <span className={styles.emptyListMessage}>
-                No holdings found
-              </span>
+              <span className={styles.emptyListMessage}>No holdings found</span>
             )}
           </div>
 
@@ -100,7 +104,9 @@ const Dashboard = () => {
                 <div className={styles.docCardHeader}>
                   <span className={styles.docCardContent}>Plot Name</span>
                   <span className={styles.docCardContent}>% Distributed</span>
-                  <span className={styles.docCardContent}>Num of Investors</span>
+                  <span className={styles.docCardContent}>
+                    Num of Investors
+                  </span>
                 </div>
                 {sellings.map((item, index) => {
                   return (
@@ -128,9 +134,7 @@ const Dashboard = () => {
                 })}
               </>
             ) : (
-              <span className={styles.emptyListMessage}>
-                No sellings found
-              </span>
+              <span className={styles.emptyListMessage}>No sellings found</span>
             )}
           </div>
         </div>

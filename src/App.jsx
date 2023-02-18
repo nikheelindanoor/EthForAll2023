@@ -5,6 +5,7 @@ import HomePage from './pages/HomePage/HomePage';
 import Register from './pages/Register/Register';
 import { Auth, useAuth } from "@arcana/auth-react";
 import Dashboard from './pages/Dashboard/Dashboard';
+import Plots from './pages/Plots/Plots';
 
 const App = () => {
   const auth = useAuth();
@@ -30,6 +31,14 @@ const App = () => {
       element: (
         <>
           <Dashboard />
+        </>
+      ),
+    },
+    {
+      path: "/plots",
+      element: (
+        <>
+          <Plots />
         </>
       ),
     }
