@@ -63,6 +63,8 @@ contract SmartEstate is ERC721URIStorage {
         uint256 quantity;
         uint256 sellable;
     }
+    // 1 100 80
+    // 1 80 60 
 
     uint256 transactionCount;
     uint256 plotCount;
@@ -373,6 +375,7 @@ contract SmartEstate is ERC721URIStorage {
             for (i = 0; i < stockCount; i++) {
                 if (stocks[i].userId == userAddressToIdMapping[msg.sender]) {
                     if (stocks[i].quantity + quantityToBuy > sellQuantity) {
+                        // 80 - 30, 10
                         stocks[i].quantity += quantityToBuy;
                         stocks[i].sellable += quantityToBuy;
                         updateBuyableStocks(stockId, quantityToBuy);
