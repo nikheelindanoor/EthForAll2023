@@ -5,6 +5,8 @@ import HomePage from './pages/HomePage/HomePage';
 import Register from './pages/Register/Register';
 import { Auth, useAuth } from "@arcana/auth-react";
 import Dashboard from './pages/Dashboard/Dashboard';
+import SellingsPage from './pages/SellingsPage/SellingsPage';
+import Holdings from './pages/Holdings/Holdings';
 
 const App = () => {
   const auth = useAuth();
@@ -32,7 +34,23 @@ const App = () => {
           <Dashboard />
         </>
       ),
-    }
+    },
+    {
+      path: "/sellings/:sid",
+      element: (
+        <>
+          <SellingsPage />
+        </>
+      ),
+    },
+    {
+      path: "/holdings/:hid",
+      element: (
+        <>
+          <Holdings />
+        </>
+      ),
+    },
   ]);
 
   // return (<div>
