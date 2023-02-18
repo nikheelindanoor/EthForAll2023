@@ -23,7 +23,7 @@
     display: flex;
 }
 .input, .input2 {
-    width: 10%;
+    /* width: 10%; */
     padding: 5px 0px;
     outline: none;
     border: none;
