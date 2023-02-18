@@ -11,19 +11,19 @@ const Register = () => {
   const [mobileNo, setMobileNo] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-    const connectUsingArcana = async () => {
-        // write code to connect with arcana auth
+  const connectUsingArcana = async () => {
+      // write code to connect with arcana auth
 
-        console.log("connecting...")
-        try{
-            const provider = await auth.connect();
-            console.log({provider});
-            setPubAddr(auth.user.address);
-            console.log(auth.user.address);
-        }catch(error){
-            console.log({error});
-        }
-    }
+      console.log("connecting...")
+      try{
+          const provider = await auth.connect();
+          console.log({provider});
+          setPubAddr(auth.user.address);
+          console.log(auth.user.address);
+      }catch(error){
+          console.log({error});
+      }
+  }
 
   return (
     <>
