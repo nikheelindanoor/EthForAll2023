@@ -45,6 +45,8 @@ contract SmartEstate is ERC721URIStorage {
         uint256 totalQuantity;
         uint256 availableStocks;
         uint256 price;
+        bool rented;
+        uint256 rentAmount;
     }
 
     struct Transaction {
@@ -62,6 +64,7 @@ contract SmartEstate is ERC721URIStorage {
         uint256 plotId;
         uint256 quantity;
         uint256 sellable;
+        uint256 price;
     }
     // 1 100 80
     // 1 80 60 
@@ -72,6 +75,10 @@ contract SmartEstate is ERC721URIStorage {
     uint256 userCount;
     uint256 userRequestCount;
     uint256 stockCount;
+    uint256 paymentCount;
+
+    mapping(uint256 => RentAggrement) rentAggrements;
+    mapping(uint256 => Payment) private payments;
 
     mapping(uint256 => User) users;
     mapping(uint256 => User) userRequests;
@@ -160,16 +167,16 @@ contract SmartEstate is ERC721URIStorage {
 
     // FETCH USER REQUESTS FUNCTIONS
 
-    function fetchUserRequestByAddress(
-        address addr
-    ) public view returns (User memory) {
-        for (uint256 i = 0; i < userRequestCount; i++) {
-            if (userRequests[i].userAdd == addr) {
-                return userRequests[i];
-            }
-        }
-        revert();
-    }
+    // function fetchUserRequestByAddress(
+    //     address addr
+    // ) public view returns (User memory) {
+    //     for (uint256 i = 0; i < userRequestCount; i++) {
+    //         if (userRequests[i].userAdd == addr) {
+    //             return userRequests[i];
+    //         }
+    //     }
+    //     revert();
+    // }
 
     function fetchAllUserRequests() public view returns (User[] memory) {
         User[] memory userRequestList = new User[](userRequestCount);
@@ -228,7 +235,8 @@ contract SmartEstate is ERC721URIStorage {
         string memory yCor,
         uint256 totalQuantity,
         uint256 availableStocks,
-        uint256 price
+        uint256 price,
+        uint256 rentAmount
     ) public {
         plotRequests[plotRequestCount] = Plot({
             id: plotRequestCount,
@@ -239,13 +247,16 @@ contract SmartEstate is ERC721URIStorage {
             yCor: yCor,
             totalQuantity: totalQuantity,
             availableStocks: availableStocks,
-            price: price
+            price: price,
+            rented: false,
+            rentAmount: rentAmount
         });
         plotRequestCount += 1;
     }
 
     function verifyUser(address userAdd) public {
         users[userCount] = userRequests[userAddressToIdMapping[userAdd]];
+        users[userCount].userId = userCount;
 
         userRequests[userAddressToIdMapping[userAdd]] = userRequests[
             userRequestCount - 1
@@ -282,12 +293,14 @@ contract SmartEstate is ERC721URIStorage {
 
     function acceptPlot(uint256 plotId) public {
         plots[plotCount] = plotRequests[plotId];
+        plots[plotCount].id = plotCount;
 
         stocks[stockCount] = Stocks({
             userId: userAddressToIdMapping[msg.sender],
             plotId: plotCount,
             quantity: plots[plotCount].totalQuantity,
-            sellable: plots[plotCount].availableStocks
+            sellable: plots[plotCount].availableStocks,
+            price: plots[plotCount].price
         });
         // 1- 100, 80
 
@@ -302,6 +315,10 @@ contract SmartEstate is ERC721URIStorage {
 
     function updateSellableStocks(uint256 stockId, uint256 sellable) public {
         stocks[stockId].sellable += sellable;
+    }
+
+    function updateStockPrice(uint256 stockId, uint256 price) public {
+        stocks[stockId].price = price;
     }
 
     function updateBuyableStocks(uint256 stockId, uint256 buyable) public {
@@ -327,7 +344,6 @@ contract SmartEstate is ERC721URIStorage {
             plotId: plotId,
             state: 0
         });
-        // validateTransaction(transactionCount);
 
         transactionCount += 1;
         return transactionCount - 1;
@@ -392,7 +408,8 @@ contract SmartEstate is ERC721URIStorage {
                         userId: userAddressToIdMapping[msg.sender],
                         plotId: plotId,
                         quantity: quantityToBuy,
-                        sellable: sellQuantity
+                        sellable: sellQuantity,
+                        price: plots[plotId].price
                     });
                     stockCount += 1;
                     validateTransaction(transacId);
@@ -444,7 +461,8 @@ contract SmartEstate is ERC721URIStorage {
                         userId: userAddressToIdMapping[msg.sender],
                         plotId: plotId,
                         quantity: quantityToSell,
-                        sellable: sellQuantity
+                        sellable: sellQuantity,
+                        price: plots[plotId].price
                     });
                     stockCount += 1;
                     validateTransaction(transacId);
@@ -470,12 +488,11 @@ contract SmartEstate is ERC721URIStorage {
 
     function mint(
         uint256 plotId,
-        uint256 renterId,
         uint256 months,
         uint256 rentAmount,
         string memory description,
         string memory cid
-    ) pubilc {
+    ) public {
         rentIds.increment();
         uint256 newRentId = rentIds.current();
 
@@ -487,9 +504,16 @@ contract SmartEstate is ERC721URIStorage {
             renterId: userAddressToIdMapping[msg.sender],
             startDate: block.timestamp,
             endDate: block.timestamp + months * 30 days,
+            rentAmount: rentAmount,
             description: description,
             cid: cid
         });
+
+        plots[plotId].rented = true;
+    }
+
+    function updateRentPrice(uint256 plotId, uint256 rentAmount) public {
+        plots[plotId].rentAmount = rentAmount;
     }
 
     function fetchAllRentAggrements(
@@ -521,15 +545,15 @@ contract SmartEstate is ERC721URIStorage {
     ) public view returns (Payment[] memory) {
         uint256 count = 0;
         for (uint256 i = 1; i <= paymentCount; i++) {
-            if (rentAggrements[paymentCount[i].rentId].renterId == userId) {
+            if (rentAggrements[payments[i].rentId].renterId == userId) {
                 count += 1;
             }
         }
 
         Payment[] memory result = new Payment[](count);
         count = 0;
-        for (uint256 i = 1; i <= totalCount; i++) {
-            if (rentAggrements[paymentCount[i].rentId].renterId == userId) {
+        for (uint256 i = 1; i <= paymentCount; i++) {
+            if (rentAggrements[payments[i].rentId].renterId == userId) {
                 Payment storage curr = payments[i];
                 result[count] = curr;
                 count += 1;
@@ -549,7 +573,7 @@ contract SmartEstate is ERC721URIStorage {
             if (
                 rentId == payments[i].rentId &&
                 userAddressToIdMapping[msg.sender] ==
-                rent[payments[i].rentId].renterId
+                rentAggrements[payments[i].rentId].renterId
             ) {
                 break;
             }
@@ -560,7 +584,7 @@ contract SmartEstate is ERC721URIStorage {
         }
 
         // TODO: pay individual owner their rent share
-        for (uint256 i = 0; i < stockCount; i++) {
+        for (i = 0; i < stockCount; i++) {
             if (stocks[i].plotId == rentAggrements[rentId].plotId) {
                 payable(address(this)).transfer(
                     (stocks[i].quantity /
@@ -575,7 +599,7 @@ contract SmartEstate is ERC721URIStorage {
 
         payments[paymentCount++] = Payment({
             rentId: rentId,
-            date: block.timeStamp,
+            date: block.timestamp,
             amount: msg.value
         });
     }
@@ -591,15 +615,15 @@ contract SmartEstate is ERC721URIStorage {
     ) public view returns (Payment[] memory) {
         uint256 count = 0;
         for (uint256 i = 1; i <= paymentCount; i++) {
-            if (paymentCount[i].rentId == rentId) {
+            if (payments[i].rentId == rentId) {
                 count += 1;
             }
         }
 
         Payment[] memory result = new Payment[](count);
         count = 0;
-        for (uint256 i = 1; i <= totalCount; i++) {
-            if (paymentCount[i].rentId == rentId) {
+        for (uint256 i = 1; i <= paymentCount; i++) {
+            if (payments[i].rentId == rentId) {
                 Payment storage curr = payments[i];
                 result[count] = curr;
                 count += 1;
