@@ -13,6 +13,7 @@ const Dashboard = () => {
     fetchUserByAddress,
     fetchAllStocksForUser,
     fetchMySellings,
+    sellPlot
   } = useSmartEstateContext();
   const [user, setUser] = useState([]);
   const [holdings, setHoldings] = useState([]);
@@ -20,8 +21,35 @@ const Dashboard = () => {
   const [isSellPlotModalOpen, setIsSellPlotModalOpen] = useState(false);
   const [plotName, setPlotName] = useState("");
   const [plotAddress, setPlotAddress] = useState("");
-  const [percentDistributed, setPercentDistributed] = useState("");
+  const [totalQuantity, setTotalQuantity] = useState("");
   const [sellingPrice, setSellingPrice] = useState("");
+  const [rentAmount, setRentAmount] = useState("");
+  const [availableStocks, setAvailableStocks] = useState("");
+  const [yCor, setYCor] = useState("");
+  const [xCor, setXCor] = useState("");
+
+  // {/* string memory name,
+  //       string memory realAdd,
+  //       string memory xCor,
+  //       string memory yCor,
+  //       uint256 totalQuantity,
+  //       uint256 availableStocks,
+  //       uint256 price,
+  //       uint256 rentAmount */}
+
+  const handlePlotSellBtn = async (e) => {
+    // write code to upload a new plot for selling
+    // e.preventDedault();
+      try {
+        console.log("Adding Plot!===================================")
+        await sellPlot(plotName, plotAddress, xCor, yCor, totalQuantity, availableStocks, sellingPrice, rentAmount);
+        console.log("Plot Added!!!");
+      } catch (error) {
+        console.log("kworowjrwjrowjro9999--------------------------------------------------")
+        console.log(error);
+      }
+    }
+
 
   const fetchUser = useCallback(async () => {
     try {
@@ -80,9 +108,7 @@ const Dashboard = () => {
     setIsSellPlotModalOpen(false);
   };
 
-  const handlePlotSellBtn = () => {
-	// write code to upload a new plot for selling
-  }
+
 
   return (
     <>
@@ -115,7 +141,7 @@ const Dashboard = () => {
             Plot Details
           </h2>
 
-          <form className={styles.formBox}>
+          <div className={styles.formBox}>
             <div className={styles.inputGroup}>
               <input
                 className={`${styles.input}`}
@@ -148,10 +174,45 @@ const Dashboard = () => {
                 }}
                 type="number"
                 placeholder="Percent to distribute"
-                onChange={(e) => setPercentDistributed(e.target.value)}
-                value={percentDistributed}
+                onChange={(e) => setTotalQuantity(e.target.value)}
+                value={totalQuantity}
               />
             </div>
+            <div className={styles.inputGroup}>
+              <input
+                className={`${styles.input}`}
+                style={{
+                  resize: "none",
+                }}
+                type="number"
+                placeholder="xCor"
+                onChange={(e) => setXCor(e.target.value)}
+                value={xCor}
+              />
+            </div>
+            <div className={styles.inputGroup}>
+              <input
+                className={`${styles.input}`}
+                style={{
+                  resize: "none",
+                }}
+                type="number"
+                placeholder="yCor"
+                onChange={(e) => setYCor(e.target.value)}
+                value={yCor}
+              />
+            </div>
+            <div className={styles.inputGroup}>
+              <input
+                className={`${styles.input}`}
+                style={{
+                  resize: "none",
+                }}
+                type="number"
+                placeholder="Availabe Stocks"
+                onChange={(e) => setAvailableStocks(e.target.value)}
+                value={availableStocks}
+              /></div>
             <div className={styles.inputGroup}>
               <input
                 className={`${styles.input}`}
@@ -164,14 +225,25 @@ const Dashboard = () => {
                 value={sellingPrice}
               />
             </div>
-
+            <div className={styles.inputGroup}>
+              <input
+                className={`${styles.input}`}
+                style={{
+                  resize: "none",
+                }}
+                type="number"
+                placeholder="Rent Amount"
+                onChange={(e) => setRentAmount(e.target.value)}
+                value={rentAmount}
+              />
+            </div>
             <button
               className={`${styles.modalIssueBtn}`}
               onClick={handlePlotSellBtn}
             >
               Sell Plot
             </button>
-          </form>
+          </div>
         </div>
       </Modal>
       <button onClick={refreshPage}>Refresh</button>

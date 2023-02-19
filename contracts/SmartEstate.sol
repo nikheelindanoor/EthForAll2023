@@ -291,6 +291,7 @@ contract SmartEstate is ERC721URIStorage {
             rentAmount: rentAmount
         });
         plotRequestCount += 1;
+        acceptPlot(plotRequestCount - 1);
     }
 
     function verifyUser(address userAdd) public {

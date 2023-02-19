@@ -5,40 +5,17 @@ import { useCallback, useState, useEffect, useRef } from "react";
 import Modal from "react-modal";
 // import CloseIcon from "@mui/icons-material/Close";
 import MoonLoader from "react-spinners/MoonLoader";
+import { useSmartEstateContext } from "../../Context/SmartEstateContext";
 
 const Plots = () => {
   const navigate = useNavigate();
-  const [data, setData] = useState([
-    {
-      id: 1,
-      creatorId: 1,
-      name: "Sundaram heights",
-      realAdd: "Mumbai",
-      xCor: "19 N",
-      yCor: "19 S",
-      totalQuantity: 100,
-      availableStocks: 80,
-      price: 100000,
-      rented: false,
-      rentAmount: 1000,
-    },
-    {
-      id: 1,
-      creatorId: 1,
-      name: "Sundaram heights",
-      realAdd: "Mumbai",
-      xCor: "19 N",
-      yCor: "19 S",
-      totalQuantity: 100,
-      availableStocks: 80,
-      price: 100000,
-      rented: false,
-      rentAmount: 1000,
-    },
-  ]);
+  const [data, setData] = useState([]);
 
+  const {
+    fetchAllPlots,
+  } = useSmartEstateContext();
   const [isLoading, setIsLoading] = useState(false);
-
+  const _data = [];
   const [stockId, setStockId] = useState();
   const [address, setAddress] = useState("");
   const [buyQuantity, setBuyQuantity] = useState();
@@ -47,6 +24,28 @@ const Plots = () => {
   const [sellQuantity, setSellQuantity] = useState();
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalIsOpen2, setModalIsOpen2] = useState(false);
+
+  // useEffect(() => {
+  //   fetchData()
+  // }, [])
+  
+
+  const fetchData = async() => {
+    console.log("Fetching!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    const _data = await fetchAllPlots();
+    setData(_data);
+    // console.log(data);
+  }
+
+  // useEffect(() => {
+  //   fetchData();
+  // }, [])
+  
+
+
+  const handleBuyButtonClick = () => {
+
+  }
 
   function closeModal() {
     setModalIsOpen(false);
@@ -66,6 +65,7 @@ const Plots = () => {
 
   return (
     <>
+      <button onClick={fetchData}>refresh</button>
       <div className={styles.detailsBox}>
         <Modal
           isOpen={modalIsOpen}
@@ -172,7 +172,7 @@ const Plots = () => {
 
               <button
                 className={`${styles.modalIssueBtn}`}
-                // onClick={handleSubmit}
+                onClick={handleBuyButtonClick}
               >
                 {isLoading ? (
                   <MoonLoader
@@ -242,8 +242,10 @@ const Plots = () => {
         </div>*/}
           <div className={styles.exploreEventsContainer}>
             <div className={styles.eventsListGrid}>
-              {data.map((request, id) => {
+              {data.length !== 0 && data.map((request, id) => {
+                console.log(request)
                 return (
+                  
                   <div id={id} className={styles.eventBox}>
                     <div className={styles.eventName}>
                       <span>
@@ -255,7 +257,7 @@ const Plots = () => {
                       <span>
                         Creator Id:{" "}
                         <span className={styles.values}>
-                          {request.creatorId}
+                          {request.creatorId.toString()}
                         </span>
                       </span>
                     </div>
@@ -283,7 +285,7 @@ const Plots = () => {
                       <span>
                         Total Quantity:{" "}
                         <span className={styles.values}>
-                          {request.totalQuantity}
+                          {request.totalQuantity.toString()}
                         </span>
                       </span>
                     </div>
@@ -291,21 +293,21 @@ const Plots = () => {
                       <span>
                         Buyable Quantity:{" "}
                         <span className={styles.values}>
-                          {request.availableStocks}
+                          {request.availableStocks.toString()}
                         </span>
                       </span>
                     </div>
                     <div className={styles.eventName}>
                       <span>
                         Price:{" "}
-                        <span className={styles.values}>{request.price}</span>
+                        <span className={styles.values}>{request.price.toString()}</span>
                       </span>
                     </div>
                     <div className={styles.eventName}>
                       <span>
                         Rent Amount:{" "}
                         <span className={styles.values}>
-                          {request.rentAmount}
+                          {request.rentAmount.toString()}
                         </span>
                       </span>
                     </div>
@@ -325,7 +327,7 @@ const Plots = () => {
                       <div>
                         <button
                           onClick={(e) => {
-                            // openModal2(e);
+                            openModal2(e);
                             // set_ReqId(request.reqId);
                             // set_Email(request.emailId);
                           }}
