@@ -72,10 +72,17 @@ export const SmartEstateProvider = ({ children }) => {
 		const data = await contract.fetchAllPlots();
 		console.log("-=-=-=-=-=-=-=-=-")
 		data.length !== 0 && data.map((request, id) => {
-			console.log(request.price.toString());
+			console.log(request.id.toString());
 		})
 		// console.log(data);
 		return data;
+	}
+
+	const fetchPlotById = async(id) => {
+		const contract = await connectingWithSmartContract();
+		const plotdata = contract.fetchPlotById(id);
+		console.log(plotdata);
+		return plotdata;
 	}
 
 
@@ -181,6 +188,7 @@ export const SmartEstateProvider = ({ children }) => {
 				buyStocks,
 				sellPlot,
 				fetchAllPlots,
+				fetchPlotById,
 			}}
 		>
 			{children}
