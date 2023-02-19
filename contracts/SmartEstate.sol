@@ -84,6 +84,7 @@ contract SmartEstate is ERC721URIStorage {
     mapping(uint256 => Plot) plots;
     mapping(uint256 => Plot) plotRequests;
     mapping(uint256 => Stocks) stocks;
+    mapping(address => User) addressToUserMapping;
 
     mapping(address => uint256) userAddressToIdMapping;
 
@@ -135,7 +136,7 @@ contract SmartEstate is ERC721URIStorage {
             aadhaar: aadhaar,
             aadhaarCID: aadhaarCID
         });
-
+        addressToUserMapping[userAdd] = userRequests[userRequestCount];
         userRequestCount += 1;
     }
 
@@ -144,12 +145,13 @@ contract SmartEstate is ERC721URIStorage {
     function fetchUserByAddress(
         address addr
     ) public view returns (User memory) {
-        for (uint256 i = 0; i < userCount; i++) {
-            if (users[i].userAdd == addr) {
-                return users[i];
-            }
-        }
-        revert();
+        // for (uint256 i = 0; i < userCount; i++) {
+        //     if (users[i].userAdd == addr) {
+        //         return users[i];
+        //     }
+        // }
+        return addressToUserMapping[addr];
+        // revert();
     }
 
     function fetchUserById(uint256 id) public view returns (User memory) {

@@ -1,5 +1,6 @@
 import { useAuth } from "@arcana/auth-react";
 import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSmartEstateContext } from "../../Context/SmartEstateContext";
 import styles from "./Register.module.css";
 
@@ -12,6 +13,7 @@ const Register = () => {
 	const [mobileNo, setMobileNo] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 
+	const navigate = useNavigate();
 	useEffect(() => {
 		setPubAddr(currentAccount);
 	}, [currentAccount]);
@@ -20,6 +22,10 @@ const Register = () => {
 		try{
 			await registerUser(name, mobileNo, aadharNo, email);
 			console.log("registered!");
+			for (let index = 0; index < 100000; index++) {
+				
+			}
+			navigate('/dashboard')
 		}catch(error){
 			console.log(error);
 		}
@@ -71,7 +77,7 @@ const Register = () => {
 							className={`${styles.input}`}
 							type="text"
 							placeholder="Enter your VJTI Registration ID"
-							onChange={(e) => setAadharNo(e.target.value)}
+							onChange={(e) => {setAadharNo(e.target.value); console.log(aadharNo)}}
 							value={aadharNo}
 						/>
 					</div>

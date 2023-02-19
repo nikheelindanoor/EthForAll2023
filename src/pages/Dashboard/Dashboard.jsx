@@ -14,6 +14,8 @@ const Dashboard = () => {
 		fetchMySellings,
 	} = useSmartEstateContext();
 	const [user, setUser] = useState([]);
+	const [holdings, setHoldings] = useState([]);
+	const [sellings, setSellings] = useState([]);
 
 	const fetchUser = useCallback(async () => {
 		try {
@@ -53,33 +55,29 @@ const Dashboard = () => {
 		}
 	}, [currentAccount]);
 
-	const [holdings, setHoldings] = useState([
-		{
-			plotName: "ABCDE",
-			owner: "Atharva Patil",
-			percentShare: 3.5,
-			rent: "60,000",
-		},
-	]);
-	const [sellings, setSellings] = useState([
-		{
-			plotName: "ABCDEF",
-			percentDistributed: 85.6,
-			numOfInvestors: 8,
-		},
-	]);
+
 
 	const handleNavigateToPlots = () => {
 		navigate("/plots");
 	};
 
+	const refreshPage = () => {
+		fetchUser();
+		fetchAllStocksForUser();
+		fetchHoldings();
+		fetchSellings();
+	}
+
 	return (
 		<>
+		<button onClick={refreshPage}>
+						Refresh
+					</button>
 			<div className={styles.studentDashboardContainer}>
 				<div className={styles.dashboardBox}>
 					<div className={styles.heading}>
 						Welcome{" "}
-						<span className={styles.accountName}>Ravi Maurya</span>
+						<span className={styles.accountName}>{user.name}</span>
 					</div>
 
 					<div className={styles.detailsBox}>
