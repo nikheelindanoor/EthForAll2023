@@ -174,6 +174,19 @@ export const SmartEstateProvider = ({ children }) => {
 		console.log(data);
 	}
 
+	const fetchAllStocksForPlot = async(plotId) => {
+		const contract = await connectingWithSmartContract();
+		const data = contract.fetchAllStocksForPlot(plotId);
+		// console.log(data)
+		return data;
+	}
+
+	const fetchStocksPerUser = async(userAdd) => {
+		const contract = await connectingWithSmartContract();
+		const data = await contract.fetchAllStocksForUser(userAdd);
+		return data;
+	}
+
 	return (
 		<SmartEstateContext.Provider
 			value={{
@@ -189,6 +202,8 @@ export const SmartEstateProvider = ({ children }) => {
 				sellPlot,
 				fetchAllPlots,
 				fetchPlotById,
+				fetchAllStocksForPlot,
+				fetchStocksPerUser,
 			}}
 		>
 			{children}

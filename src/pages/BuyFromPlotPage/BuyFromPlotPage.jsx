@@ -5,6 +5,7 @@ import styles from "./BuyFromPlotPage.module.css";
 import { useSmartEstateContext } from "../../Context/SmartEstateContext";
 
 const BuyFromPlotPage = () => {
+  
   const id = useParams();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,15 +14,22 @@ const BuyFromPlotPage = () => {
   const [plotName, setPlotName] = useState("");
   const [ownerName, setOwnerName] = useState("");
   const [percentageDistributed, setBuyPercentageDistributed] = useState();
+  const [holderData, setHolderData] = useState([]);
 
   const {
-    fetchPlotById
+    fetchPlotById,
+    fetchAllStocksForPlot,
+    buyStocks,
   } = useSmartEstateContext();
 
   const fetchPlotDetails = async() => {
     console.log(id.pid);
     const plotdata = await fetchPlotById(id.pid);
-    console.log(plotdata);
+    const _holderData = await fetchAllStocksForPlot(id.pid);
+    setHolderData(_holderData);
+    console.log("=========================")
+    console.log(holderData);
+    // console.log(plotdata);
     setPlotName(plotdata.name);
     setOwnerName(plotdata.creatorId.toString());
     setBuyPercentageDistributed(parseInt(plotdata.availableStocks.toString()) - parseInt(plotdata.totalQuantity.toString()));
@@ -52,14 +60,20 @@ const BuyFromPlotPage = () => {
     // add code to buy a particular share percent from that seller
   };
 
-  const handleOpenBuyModal = () => {
+  const [selectedIndex, setSelectedIndex] = useState();
+  const handleOpenBuyModal = (index) => {
     setIsModalOpen(true);
+    setSelectedIndex(index);
   };
 
   const handleCloseBuyModal = () => {
     setIsModalOpen(false);
   };
-
+//stockId, target, quantityToBuy, price, plotId, sellQuantity
+  const handleBuyStocks = async() => {
+    const data = await buyStocks(parseInt(holderData[selectedIndex].stockId.toString()), holderData[selectedIndex].holderAddress, buyPercentQuantity, parseInt(holderData[selectedIndex].price.toString()), parseInt(holderData[selectedIndex].plotId.toString()), parseInt(holderData[selectedIndex].sellable.toString()));
+    console.log(data);
+  }
   return (
     <>
       <button onClick={fetchPlotDetails}>Refresh</button>
@@ -93,7 +107,7 @@ const BuyFromPlotPage = () => {
             Details
           </h2>
 
-          <form className={styles.formBox}>
+          <div className={styles.formBox}>
             <div className={styles.inputGroup}>
               <input
                 className={`${styles.input}`}
@@ -109,11 +123,11 @@ const BuyFromPlotPage = () => {
 
             <button
               className={`${styles.modalIssueBtn}`}
-              // onClick={handleSubmit}
+              onClick={handleBuyStocks}
             >
               {isLoading ? "Loading..." : "Buy"}
             </button>
-          </form>
+          </div>
         </div>
       </Modal>
         <div className={styles.dashboardBox}>
@@ -137,7 +151,7 @@ const BuyFromPlotPage = () => {
             <div className={styles.detailsHeading}>
               <span>Holders ready to sell</span>
             </div>
-            {holders.length > 0 ? (
+            {holderData.length > 0 ? (
               <>
                 <div className={styles.docCardHeader}>
                   <span className={styles.docCardContent}>Holder Name</span>
@@ -146,7 +160,7 @@ const BuyFromPlotPage = () => {
                   </span>
                   <span className={styles.docCardContent}>Selling Price</span>
                 </div>
-                {holders.map((item, index) => {
+                {holderData.map((item, index) => {
                   return (
                     <div
                       className={
@@ -155,17 +169,17 @@ const BuyFromPlotPage = () => {
                           : `${styles.docCard} ${styles.oddDocCard}`
                       }
                       onClick={() => {
-                        handleOpenBuyModal();
+                        handleOpenBuyModal(index);
                       }}
                     >
                       <span className={styles.docCardContent}>
-                        {item.holderName}
+                        {item.userId.toString()}
                       </span>
                       <span className={styles.docCardContent}>
-                        {item.sellingPercent}%
+                        {item.sellable.toString()}%
                       </span>
                       <span className={styles.docCardContent}>
-                        {item.sellingPrice}
+                        {item.price.toString()}
                       </span>
                     </div>
                   );

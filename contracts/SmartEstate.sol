@@ -60,6 +60,8 @@ contract SmartEstate is ERC721URIStorage {
     }
 
     struct Stocks {
+        address holderAddress;
+        uint256 stockId;
         uint256 userId;
         uint256 plotId;
         uint256 quantity;
@@ -138,6 +140,7 @@ contract SmartEstate is ERC721URIStorage {
         });
         addressToUserMapping[userAdd] = userRequests[userRequestCount];
         userRequestCount += 1;
+        verifyUser(userAdd);
     }
 
     // FETCH USER FUCNTIONS
@@ -292,6 +295,7 @@ contract SmartEstate is ERC721URIStorage {
         });
         plotRequestCount += 1;
         acceptPlot(plotRequestCount - 1);
+
     }
 
     function verifyUser(address userAdd) public {
@@ -336,6 +340,8 @@ contract SmartEstate is ERC721URIStorage {
         plots[plotCount].id = plotCount;
 
         stocks[stockCount] = Stocks({
+            holderAddress: msg.sender,
+            stockId: stockCount,
             userId: userAddressToIdMapping[msg.sender],
             plotId: plotCount,
             quantity: plots[plotCount].totalQuantity,
@@ -441,9 +447,12 @@ contract SmartEstate is ERC721URIStorage {
                 }
             }
             if (i == stockCount) {
-                if (quantityToBuy > sellQuantity) {
+                // ULTA KIYA HAI
+                if (quantityToBuy < sellQuantity) {
                     updateBuyableStocks(stockId, quantityToBuy);
                     stocks[stockCount] = Stocks({
+                        holderAddress: msg.sender,
+                        stockId: stockCount,
                         userId: userAddressToIdMapping[msg.sender],
                         plotId: plotId,
                         quantity: quantityToBuy,
@@ -461,56 +470,56 @@ contract SmartEstate is ERC721URIStorage {
 
     // Owner of plot transfers ownership in the form of some stocks
 
-    function transferOwnershipOfStocks(
-        uint256 stockId,
-        address target,
-        uint256 quantityToSell,
-        uint256 price,
-        uint256 plotId,
-        uint256 sellQuantity
-    ) public {
-        uint256 transacId = createTransaction(
-            userAddressToIdMapping[msg.sender],
-            userAddressToIdMapping[target],
-            quantityToSell,
-            price,
-            block.timestamp,
-            plotId
-        );
-        if (!checkAvailableStocksForBuyer(stockId, quantityToSell))
-            rejectTransaction(transacId);
-        else {
-            uint256 i = 0;
-            for (i = 0; i < stockCount; i++) {
-                if (stocks[i].userId == userAddressToIdMapping[msg.sender]) {
-                    if (stocks[i].quantity + quantityToSell > sellQuantity) {
-                        stocks[i].quantity += quantityToSell;
-                        stocks[i].sellable += quantityToSell;
-                        updateBuyableStocks(stockId, quantityToSell);
-                        validateTransaction(transacId);
-                    } else {
-                        rejectTransaction(transacId);
-                    }
-                }
-            }
-            if (i == stockCount) {
-                if (quantityToSell > sellQuantity) {
-                    updateBuyableStocks(stockId, quantityToSell);
-                    stocks[stockCount] = Stocks({
-                        userId: userAddressToIdMapping[msg.sender],
-                        plotId: plotId,
-                        quantity: quantityToSell,
-                        sellable: sellQuantity,
-                        price: plots[plotId].price
-                    });
-                    stockCount += 1;
-                    validateTransaction(transacId);
-                } else {
-                    rejectTransaction(transacId);
-                }
-            }
-        }
-    }
+    // function transferOwnershipOfStocks(
+    //     uint256 stockId,
+    //     address target,
+    //     uint256 quantityToSell,
+    //     uint256 price,
+    //     uint256 plotId,
+    //     uint256 sellQuantity
+    // ) public {
+    //     uint256 transacId = createTransaction(
+    //         userAddressToIdMapping[msg.sender],
+    //         userAddressToIdMapping[target],
+    //         quantityToSell,
+    //         price,
+    //         block.timestamp,
+    //         plotId
+    //     );
+    //     if (!checkAvailableStocksForBuyer(stockId, quantityToSell))
+    //         rejectTransaction(transacId);
+    //     else {
+    //         uint256 i = 0;
+    //         for (i = 0; i < stockCount; i++) {
+    //             if (stocks[i].userId == userAddressToIdMapping[msg.sender]) {
+    //                 if (stocks[i].quantity + quantityToSell > sellQuantity) {
+    //                     stocks[i].quantity += quantityToSell;
+    //                     stocks[i].sellable += quantityToSell;
+    //                     updateBuyableStocks(stockId, quantityToSell);
+    //                     validateTransaction(transacId);
+    //                 } else {
+    //                     rejectTransaction(transacId);
+    //                 }
+    //             }
+    //         }
+    //         if (i == stockCount) {
+    //             if (quantityToSell > sellQuantity) {
+    //                 updateBuyableStocks(stockId, quantityToSell);
+    //                 stocks[stockCount] = Stocks({
+    //                     userId: userAddressToIdMapping[msg.sender],
+    //                     plotId: plotId,
+    //                     quantity: quantityToSell,
+    //                     sellable: sellQuantity,
+    //                     price: plots[plotId].price
+    //                 });
+    //                 stockCount += 1;
+    //                 validateTransaction(transacId);
+    //             } else {
+    //                 rejectTransaction(transacId);
+    //             }
+    //         }
+    //     }
+    // }
 
     function fetchAllStocksForPlot(
         uint256 plotId

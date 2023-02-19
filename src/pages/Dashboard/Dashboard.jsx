@@ -13,6 +13,7 @@ const Dashboard = () => {
     fetchUserByAddress,
     fetchAllStocksForUser,
     fetchMySellings,
+    fetchStocksPerUser,
     sellPlot
   } = useSmartEstateContext();
   const [user, setUser] = useState([]);
@@ -27,6 +28,7 @@ const Dashboard = () => {
   const [availableStocks, setAvailableStocks] = useState("");
   const [yCor, setYCor] = useState("");
   const [xCor, setXCor] = useState("");
+  // const [holdings, setHoldings] = useState([]);
 
   // {/* string memory name,
   //       string memory realAdd,
@@ -60,14 +62,20 @@ const Dashboard = () => {
     }
   });
 
-  const fetchHoldings = useCallback(async () => {
-    try {
-      const data = await fetchAllStocksForUser(currentAccount, user.name);
-      setHoldings(data);
-    } catch (err) {
-      console.log(err);
-    }
-  });
+  // const fetchHoldings = useCallback(async () => {
+  //   try {
+  //     const data = await fetchAllStocksForUser(currentAccount, user.name);
+  //     setHoldings(data);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // });
+
+  const fetchHoldings = async() => {
+    const data = await fetchStocksPerUser(currentAccount);
+    console.log(data);
+    setHoldings(data);
+  }
 
   const fetchSellings = useCallback(async () => {
     try {
@@ -281,7 +289,7 @@ const Dashboard = () => {
               <>
                 <div className={styles.docCardHeader}>
                   <span className={styles.docCardContent}>Plot Name</span>
-                  <span className={styles.docCardContent}>Owner Name</span>
+                  {/* <span className={styles.docCardContent}>Owner Name</span> */}
                   <span className={styles.docCardContent}>% Share</span>
                   <span className={styles.docCardContent}>Rent</span>
                 </div>
@@ -298,13 +306,13 @@ const Dashboard = () => {
                       }}
                     >
                       <span className={styles.docCardContent}>
-                        {item.plotName}
+                        {item.plotId.toString()}
                       </span>
+                      {/* <span className={styles.docCardContent}>
+                        {item.userId.toString()}
+                      </span> */}
                       <span className={styles.docCardContent}>
-                        {item.owner}
-                      </span>
-                      <span className={styles.docCardContent}>
-                        {item.percentShare} %
+                        {item.quantity.toString()} %
                       </span>
                       <span className={styles.docCardContent}>{item.rent}</span>
                     </div>
