@@ -20,14 +20,14 @@ export const SmartEstateProvider = ({ children }) => {
 
 	const connectingWithSmartContract = async () => {
 		try {
-			const web3Modal = new Wenb3Model();
-			const connection = await web3Modal.connect();
-			const provider = new ethers.providers.Web3Provider(connection);
-			const signer = provider.getSigner();
-			const contract = fetchContract(signer);
+			const provider = await auth.connect();
+			console.log(provider);
+			const contract = fetchContract(provider);
+			console.log(contract);
 			return contract;
 		} catch (error) {
-			console.log("Something went wrong while connecting with contract!");
+			// console.log("Something went wrong while connecting with contract!");
+			console.log(error);
 		}
 	};
 
@@ -45,6 +45,14 @@ export const SmartEstateProvider = ({ children }) => {
 			console.log({ error });
 		}
 	};
+
+	const registerUser = async (userName, mobileNo, aadharNo, aadharCID) => {
+		const contract = await connectingWithSmartContract();
+		if(currentAccount){
+			const data = await contract.registerUser(currentAccount, userName, mobileNo, aadharNo, aadharCID);
+			console.log(data);
+		}
+	}
 
 	const fetchAllUsers = async () => {
 		const contract = await connectingWithSmartContract();
@@ -130,6 +138,7 @@ export const SmartEstateProvider = ({ children }) => {
 			value={{
 				connectUsingArcana,
 				currentAccount,
+				registerUser,
 				fetchAllStocksForUser,
 				fetchAllUsers,
 				fetchUserByAddress,

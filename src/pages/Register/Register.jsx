@@ -4,13 +4,26 @@ import { useSmartEstateContext } from "../../Context/SmartEstateContext";
 import styles from "./Register.module.css";
 
 const Register = () => {
-	const { connectUsingArcana } = useSmartEstateContext();
+	const { connectUsingArcana, currentAccount, registerUser } = useSmartEstateContext();
 	const [pubAddr, setPubAddr] = useState("");
-	const [sid, setSid] = useState("");
+	const [aadharNo, setAadharNo] = useState("");
 	const [email, setEmail] = useState("");
 	const [name, setName] = useState("");
 	const [mobileNo, setMobileNo] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+
+	useEffect(() => {
+		setPubAddr(currentAccount);
+	}, [currentAccount]);
+
+	const handleRegisterUser = async () => {
+		try{
+			await registerUser(name, mobileNo, aadharNo, email);
+			console.log("registered!");
+		}catch(error){
+			console.log(error);
+		}
+	}
 
 	return (
 		<>
@@ -58,8 +71,8 @@ const Register = () => {
 							className={`${styles.input}`}
 							type="text"
 							placeholder="Enter your VJTI Registration ID"
-							onChange={(e) => setSid(e.target.value)}
-							value={sid}
+							onChange={(e) => setAadharNo(e.target.value)}
+							value={aadharNo}
 						/>
 					</div>
 
@@ -89,7 +102,7 @@ const Register = () => {
 						/>
 					</div>
 
-					<button onClick={() => {}} className={styles.registerBtn}>
+					<button onClick={handleRegisterUser} className={styles.registerBtn}>
 						Register
 					</button>
 				</div>
