@@ -20,9 +20,11 @@ export const SmartEstateProvider = ({ children }) => {
 
 	const connectingWithSmartContract = async () => {
 		try {
-			const provider = await auth.connect();
+			const arcanaProvider = await auth.connect();
+			const provider = new ethers.providers.Web3Provider(arcanaProvider);
 			console.log(provider);
-			const contract = fetchContract(provider);
+			const signer = provider.getSigner();
+			const contract = fetchContract(signer);
 			console.log(contract);
 			return contract;
 		} catch (error) {
