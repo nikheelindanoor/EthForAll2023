@@ -50,11 +50,66 @@ export const SmartEstateProvider = ({ children }) => {
 		const contract = await connectingWithSmartContract();
 		const data = await contract.fetchAllUsers();
 		console.log(data);
+		return data;
+	};
+
+	const fetchAllStocksForUser = async (address, ownerName) => {
+		const contract = await connectingWithSmartContract();
+		const data = await contract.fetchAllStocksForUser(address);
+		const user = await contract.fetchUserByAddress();
+		var res = [];
+		for (let i = 0; i < data.length; i++) {
+			const plot = await contract.fetchPlotById(data[i].plotId);
+			res.push({
+				plotName: data[i].name,
+				owner: ownerName,
+				percentShare:
+					data[i].quantity.toNumber() /
+					plot[i].totalQuantity.toNumber(),
+				rent: plot[i].rentAmount.toNumber(),
+			});
+		}
+		console.log(data);
+		return data;
+	};
+
+	const fetchUserByAddress = async (address) => {
+		const contract = await connectingWithSmartContract();
+		const data = await contract.fetchUserByAddress(address);
+		console.log(data);
+		return data;
+	};
+
+	const fetchMySellings = async (address) => {
+		const contract = await connectingWithSmartContract();
+		const plots = await contract.fetchUserPlots(address);
+
+		var res = [];
+
+		for (let i = 0; i < plots.length; i++) {
+			const data = await contract.fetchAllStocksForPlot(plots[i].id);
+			res.push({
+				plotName: plots[i].name,
+				percentDistributed:
+					plots[i].availableStocks.toNumber() /
+					plots[i].totalQuantity.toNumber(),
+				numOfInvestors: data.length,
+			});
+		}
+
+		return res;
 	};
 
 	return (
 		<SmartEstateContext.Provider
-			value={{ connectUsingArcana, currentAccount }}
+			value={{
+				connectUsingArcana,
+				currentAccount,
+				fetchAllStocksForUser,
+				fetchAllUsers,
+				fetchUserByAddress,
+				fetchMySellings,
+			}}
 		>
 			{children}
 		</SmartEstateContext.Provider>

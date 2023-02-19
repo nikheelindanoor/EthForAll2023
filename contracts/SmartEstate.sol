@@ -200,6 +200,31 @@ contract SmartEstate is ERC721URIStorage {
         return plotRequestList;
     }
 
+    function fetchUserPlots(
+        address userAdd
+    ) public view returns (Plot[] memory) {
+        uint256 count;
+
+        for (uint256 i = 0; i < plotCount; i++) {
+            if (plots[i].creatorId == userAddressToIdMapping[userAdd]) {
+                count += 1;
+            }
+        }
+
+        Plot[] memory plotList = new Plot[](count);
+        count = 0;
+
+        for (uint256 i = 0; i < plotCount; i++) {
+            if (plots[i].creatorId == userAddressToIdMapping[userAdd]) {
+                Plot storage tempPlot = plots[i];
+                plotList[count] = tempPlot;
+                count += 1;
+            }
+        }
+
+        return plotList;
+    }
+
     function fetchAllPlots() public view returns (Plot[] memory) {
         Plot[] memory plotList = new Plot[](plotCount);
 
@@ -209,6 +234,11 @@ contract SmartEstate is ERC721URIStorage {
         }
 
         return plotList;
+    }
+
+    function fetchPlotById(uint256 plotId) public view returns (Plot memory) {
+        require(plotId < plotCount, "No plot exists");
+        return plots[plotId];
     }
 
     // FETCH FOR TRANSACTION & REQUESTS
@@ -473,11 +503,44 @@ contract SmartEstate is ERC721URIStorage {
     function fetchAllStocksForPlot(
         uint256 plotId
     ) public view returns (Stocks[] memory) {
-        Stocks[] memory stockList = new Stocks[](stockCount);
+        uint256 count;
+
+        for (uint256 i = 0; i < stockCount; i++) {
+            if (stocks[i].plotId == plotId) {
+                count += 1;
+            }
+        }
+
+        Stocks[] memory stockList = new Stocks[](count);
+        count = 0;
+
         for (uint256 i = 0; i < stockCount; i++) {
             if (stocks[i].plotId == plotId) {
                 Stocks storage tempStock = stocks[i];
-                stockList[i] = tempStock;
+                stockList[count] = tempStock;
+                count += 1;
+            }
+        }
+        return stockList;
+    }
+
+    function fetchAllStocksForUser(
+        address userAdd
+    ) public view returns (Stocks[] memory) {
+        uint256 count;
+        for (uint256 i = 0; i < stockCount; i++) {
+            if (stocks[i].userId == userAddressToIdMapping[userAdd]) {
+                count += 1;
+            }
+        }
+        Stocks[] memory stockList = new Stocks[](count);
+        count = 0;
+
+        for (uint256 i = 0; i < stockCount; i++) {
+            if (stocks[i].userId == userAddressToIdMapping[userAdd]) {
+                Stocks storage tempStock = stocks[i];
+                stockList[count] = tempStock;
+                count += 1;
             }
         }
         return stockList;
