@@ -315,8 +315,9 @@ const Plots = () => {
                       <div>
                         <button
                           onClick={(e) => {
-                            openModal(e);
+                            // openModal(e);
                             // set_ReqId(request.reqId);
+                            navigate(`/buyfrom/${bigNumberToDecimal(request.id)}`)
                           }}
                           className={styles.issueBtn}
                         >
