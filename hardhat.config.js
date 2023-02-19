@@ -20,6 +20,14 @@ module.exports = {
 			],
 			allowUnlimitedContractSize: true,
 		},
+		goerli: {
+            url: process.env.GOERLI_URL || "",
+            accounts: {
+                mnemonic: process.env.MNEMONIC || "",
+                initialIndex: 0,
+                count: 10
+            }
+        },
 		mantle: {
 			url: `https://rpc.testnet.mantle.xyz/`,
 			accounts: [
