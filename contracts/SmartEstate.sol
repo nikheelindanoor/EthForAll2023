@@ -435,11 +435,12 @@ contract SmartEstate is ERC721URIStorage {
         else {
             uint256 i = 0;
             for (i = 0; i < stockCount; i++) {
-                if (stocks[i].userId == userAddressToIdMapping[msg.sender]) {
+                if (stocks[i].userId == userAddressToIdMapping[msg.sender] && stocks[i].plotId == plotId) {
                     if (stocks[i].quantity + quantityToBuy > sellQuantity) {
                         stocks[i].quantity += quantityToBuy;
                         stocks[i].sellable += quantityToBuy;
                         updateBuyableStocks(stockId, quantityToBuy);
+                        plots[plotId].availableStocks -= quantityToBuy;
                         validateTransaction(transacId);
                     } else {
                         rejectTransaction(transacId);
@@ -447,9 +448,10 @@ contract SmartEstate is ERC721URIStorage {
                 }
             }
             if (i == stockCount) {
-                // ULTA KIYA HAI
-                if (quantityToBuy < sellQuantity) {
+                // ULTA KIYA HAI, FIRSE THEEK KIYA, SORRY :)
+                if (quantityToBuy > sellQuantity) {
                     updateBuyableStocks(stockId, quantityToBuy);
+                    plots[plotId].availableStocks -= quantityToBuy;
                     stocks[stockCount] = Stocks({
                         holderAddress: msg.sender,
                         stockId: stockCount,

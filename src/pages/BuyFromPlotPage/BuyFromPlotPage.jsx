@@ -71,7 +71,7 @@ const BuyFromPlotPage = () => {
   };
 //stockId, target, quantityToBuy, price, plotId, sellQuantity
   const handleBuyStocks = async() => {
-    const data = await buyStocks(parseInt(holderData[selectedIndex].stockId.toString()), holderData[selectedIndex].holderAddress, buyPercentQuantity, parseInt(holderData[selectedIndex].price.toString()), parseInt(holderData[selectedIndex].plotId.toString()), parseInt(holderData[selectedIndex].sellable.toString()));
+    const data = await buyStocks(parseInt(holderData[selectedIndex].stockId.toString()), holderData[selectedIndex].holderAddress, buyPercentQuantity, parseInt(holderData[selectedIndex].price.toString()), parseInt(holderData[selectedIndex].plotId.toString()), 0);
     console.log(data);
   }
   return (
