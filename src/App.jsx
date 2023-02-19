@@ -35,6 +35,7 @@ const App = () => {
       path: "/dashboard",
       element: (
         <>
+        <Navbar/>
           <Dashboard />
         </>
       ),
@@ -43,6 +44,7 @@ const App = () => {
       path: "/plots",
       element: (
         <>
+        <Navbar/>
           <Plots />
         </>
       ),
@@ -51,6 +53,7 @@ const App = () => {
       path: "/sellings/:sid",
       element: (
         <>
+        <Navbar/>
           <SellingsPage />
         </>
       ),
@@ -59,6 +62,7 @@ const App = () => {
       path: "/holdings/:hid",
       element: (
         <>
+        <Navbar/>
           <Holdings />
         </>
       ),
@@ -67,6 +71,7 @@ const App = () => {
       path: "/buyfrom/:pid",
       element: (
         <>
+        <Navbar/>
           <BuyFromPlotPage />
         </>
       ),
