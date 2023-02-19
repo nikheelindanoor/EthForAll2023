@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Modal from "react-modal";
-import styles from "./BuyFromPlotPage.module.css";
+import styles from "./RentDashboard.module.css";
 import { useSmartEstateContext } from "../../Context/SmartEstateContext";
 
-const BuyFromPlotPage = () => {
+const RentDashboard = () => {
   
   const id = useParams();
   const navigate = useNavigate();
@@ -74,6 +74,12 @@ const BuyFromPlotPage = () => {
     const data = await buyStocks(parseInt(holderData[selectedIndex].stockId.toString()), holderData[selectedIndex].holderAddress, buyPercentQuantity, parseInt(holderData[selectedIndex].price.toString()), parseInt(holderData[selectedIndex].plotId.toString()), 0);
     console.log(data);
   }
+
+  const handlePayRent = async () => {
+    const data = await buyStocks(0, "0x5015Ae5Af2e03d349f18F114085f05835Fe40e64", 0, 0, 0, 0);
+    console.log(data);
+  }
+
   return (
     <>
       <button style={{alignSelf: "end"}} onClick={fetchPlotDetails}>.</button>
@@ -149,45 +155,18 @@ const BuyFromPlotPage = () => {
 
           <div className={styles.detailsBox}>
             <div className={styles.detailsHeading}>
-              <span>Holders ready to sell</span>
+              <span>Pay Rent</span>
             </div>
-            {holderData.length > 0 ? (
-              <>
-                <div className={styles.docCardHeader}>
-                  <span className={styles.docCardContent}>Holder Name</span>
-                  <span className={styles.docCardContent}>
-                    Selling Percentage
-                  </span>
-                  <span className={styles.docCardContent}>Selling Price</span>
-                </div>
-                {holderData.filter((item) => item.sellable.toString() != "0").map((item, index) => {
-                  return (
-                    <div
-                      className={
-                        index % 2 == 0
-                          ? `${styles.docCard} ${styles.evenDocCard}`
-                          : `${styles.docCard} ${styles.oddDocCard}`
-                      }
-                      onClick={() => {
-                        handleOpenBuyModal(index);
-                      }}
-                    >
-                      <span className={styles.docCardContent}>
-                        {item.userId.toString()}
-                      </span>
-                      <span className={styles.docCardContent}>
-                        {item.sellable.toString()}%
-                      </span>
-                      <span className={styles.docCardContent}>
-                        {item.price.toString()}
-                      </span>
-                    </div>
-                  );
-                })}
-              </>
-            ) : (
-              <span className={styles.emptyListMessage}>No holdings found</span>
-            )}
+            <div className={`${styles.formBox}`}>
+
+              <div className={`${styles.inputContainer}`}>
+                <label className={`${styles.inputLabel}`}>Rent to pay: </label>
+                <span>15000/-</span>
+              </div>
+              <button onClick={handlePayRent} className={styles.payRentBtn}>
+                Pay Rent
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -195,4 +174,4 @@ const BuyFromPlotPage = () => {
   );
 };
 
-export default BuyFromPlotPage;
+export default RentDashboard;

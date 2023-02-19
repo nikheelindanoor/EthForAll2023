@@ -87,15 +87,12 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
-    if (currentAccount === "") {
+    if (currentAccount == "") {
       console.log("connecting with wallet");
       connectUsingArcana();
-    } else {
-      // fetchUser();
-      // fetchHoldings();
-      // fetchSellings();
-    }
+	}
   }, [currentAccount]);
+
 
   const handleNavigateToPlots = () => {
     navigate("/plots");
@@ -254,8 +251,8 @@ const Dashboard = () => {
           </div>
         </div>
       </Modal>
-      <button onClick={refreshPage}>Refresh</button>
       <div className={styles.studentDashboardContainer}>
+		<button style={{alignSelf: "end"}} onClick={refreshPage}>.</button>
         <div className={styles.dashboardBox}>
           <div className={styles.heading}>
             Welcome <span className={styles.accountName}>{user.name}</span>

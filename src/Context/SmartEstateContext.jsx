@@ -125,7 +125,7 @@ export const SmartEstateProvider = ({ children }) => {
 				plotName: plots[i].name,
 				percentDistributed:
 					plots[i].availableStocks.toNumber() /
-					plots[i].totalQuantity.toNumber(),
+					plots[i].totalQuantity.toNumber() * 100,
 				numOfInvestors: data.length,
 			});
 		}

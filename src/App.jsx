@@ -10,6 +10,7 @@ import SellingsPage from './pages/SellingsPage/SellingsPage';
 import Holdings from './pages/Holdings/Holdings';
 import BuyFromPlotPage from './pages/BuyFromPlotPage/BuyFromPlotPage';
 import Navbar from './components/Navbar/Navbar';
+import RentDashboard from './pages/RentDashboard/RentDashboard';
 
 const App = () => {
   const auth = useAuth();
@@ -73,6 +74,15 @@ const App = () => {
         <>
         <Navbar/>
           <BuyFromPlotPage />
+        </>
+      ),
+    },
+    {
+      path: "/rent/:pid",
+      element: (
+        <>
+        <Navbar/>
+          <RentDashboard />
         </>
       ),
     },

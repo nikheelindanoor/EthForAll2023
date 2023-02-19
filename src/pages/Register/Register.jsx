@@ -76,7 +76,7 @@ const Register = () => {
 						<input
 							className={`${styles.input}`}
 							type="text"
-							placeholder="Enter your VJTI Registration ID"
+							placeholder="Enter your Aadhar number"
 							onChange={(e) => {setAadharNo(e.target.value); console.log(aadharNo)}}
 							value={aadharNo}
 						/>
@@ -102,7 +102,7 @@ const Register = () => {
 						<input
 							className={`${styles.input}`}
 							type="text"
-							placeholder="Enter your VJTI Email ID"
+							placeholder="Enter your Email ID"
 							onChange={(e) => setEmail(e.target.value)}
 							value={email}
 						/>
