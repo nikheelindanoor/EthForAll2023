@@ -6,11 +6,12 @@ import Modal from "react-modal";
 // import CloseIcon from "@mui/icons-material/Close";
 import MoonLoader from "react-spinners/MoonLoader";
 import { useSmartEstateContext } from "../../Context/SmartEstateContext";
+import { useAuth } from "@arcana/auth-react";
 
 const Plots = () => {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
-
+  const auth = useAuth();
   const {
     fetchAllPlots,
   } = useSmartEstateContext();
@@ -25,23 +26,18 @@ const Plots = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [modalIsOpen2, setModalIsOpen2] = useState(false);
 
-  // useEffect(() => {
-  //   fetchData()
-  // }, [])
-  
-
   const fetchData = async() => {
     console.log("Fetching!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     const _data = await fetchAllPlots();
+    console.log(_data);
     setData(_data);
-    // console.log(data);
   }
 
-  // useEffect(() => {
-  //   fetchData();
-  // }, [])
-  
-
+  useEffect(() => {
+    if(auth.isLoggedIn && auth.user){
+      fetchData();
+    }
+  }, [auth]);
 
   const handleBuyButtonClick = () => {
 
@@ -63,9 +59,12 @@ const Plots = () => {
     setModalIsOpen2(true);
   };
 
+  const bigNumberToDecimal = (num) => {
+    return parseInt(num._hex, 16);
+  }
+
   return (
     <>
-      <button onClick={fetchData}>refresh</button>
       <div className={styles.detailsBox}>
         <Modal
           isOpen={modalIsOpen}
@@ -250,14 +249,14 @@ const Plots = () => {
                     <div className={styles.eventName}>
                       <span>
                         Plot ID:{" "}
-                        <span className={styles.values}>{request.id}</span>
+                        <span className={styles.values}>{bigNumberToDecimal(request.id)}</span>
                       </span>
                     </div>
                     <div className={styles.eventName}>
                       <span>
                         Creator Id:{" "}
                         <span className={styles.values}>
-                          {request.creatorId.toString()}
+                          {bigNumberToDecimal(request.creatorId)}
                         </span>
                       </span>
                     </div>
@@ -285,7 +284,7 @@ const Plots = () => {
                       <span>
                         Total Quantity:{" "}
                         <span className={styles.values}>
-                          {request.totalQuantity.toString()}
+                          {bigNumberToDecimal(request.totalQuantity)}
                         </span>
                       </span>
                     </div>
@@ -293,21 +292,22 @@ const Plots = () => {
                       <span>
                         Buyable Quantity:{" "}
                         <span className={styles.values}>
-                          {request.availableStocks.toString()}
+                          {bigNumberToDecimal(request.availableStocks)}
                         </span>
                       </span>
                     </div>
                     <div className={styles.eventName}>
                       <span>
                         Price:{" "}
-                        <span className={styles.values}>{request.price.toString()}</span>
+                        <span className={styles.values}>{bigNumberToDecimal(request.price)}</span>
                       </span>
                     </div>
                     <div className={styles.eventName}>
                       <span>
                         Rent Amount:{" "}
                         <span className={styles.values}>
-                          {request.rentAmount.toString()}
+                          {bigNumberToDecimal(request.rentAmount)}
+                          {/* {ethers.utils.formatEther( request.rentAmount )} */}
                         </span>
                       </span>
                     </div>
