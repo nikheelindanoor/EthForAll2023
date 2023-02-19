@@ -152,6 +152,15 @@ contract SmartEstate is ERC721URIStorage {
         revert();
     }
 
+    function fetchUserById(uint256 id) public view returns (User memory) {
+        for (uint256 i = 0; i < userCount; i++) {
+            if (users[i].userId == id) {
+                return users[i];
+            }
+        }
+        revert();
+    }
+
     function fetchAllUsers() public view returns (User[] memory) {
         User[] memory userList = new User[](userCount);
 

@@ -100,6 +100,31 @@ export const SmartEstateProvider = ({ children }) => {
 		return res;
 	};
 
+	const fetchSellingsForSellingPage = async (plotId) => {
+		const contract = await connectingWithSmartContract();
+		const plot = await contract.fetchPlotById(plotId);
+		const plotUser = await contract.fetchUserById(plot.creatorId);
+
+		var res = [];
+
+		const data = await contract.fetchAllStocksForPlot(plot.id);
+		for (let i = 0; i < data.length; i++) {
+			const user = await contract.fetchUserById(data[i].userId);
+			res.push({
+				holderName: user.name,
+				percentShare:
+					data[i].quantity.toNumber() / plot.totalQuantity.toNumber(),
+				startDate: "15/10/2019",
+			});
+		}
+
+		return {
+			sellings: { ...plot, userName: plotUser.name },
+
+			holders: res,
+		};
+	};
+
 	return (
 		<SmartEstateContext.Provider
 			value={{
@@ -109,6 +134,7 @@ export const SmartEstateProvider = ({ children }) => {
 				fetchAllUsers,
 				fetchUserByAddress,
 				fetchMySellings,
+				fetchSellingsForSellingPage,
 			}}
 		>
 			{children}
