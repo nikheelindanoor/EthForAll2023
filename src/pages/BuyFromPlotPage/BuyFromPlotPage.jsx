@@ -1,13 +1,33 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Modal from "react-modal";
 import styles from "./BuyFromPlotPage.module.css";
+import { useSmartEstateContext } from "../../Context/SmartEstateContext";
 
 const BuyFromPlotPage = () => {
+  const id = useParams();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [buyPercentQuantity, setBuyPercentQuantity] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [plotName, setPlotName] = useState("");
+  const [ownerName, setOwnerName] = useState("");
+  const [percentageDistributed, setBuyPercentageDistributed] = useState();
+
+  const {
+    fetchPlotById
+  } = useSmartEstateContext();
+
+  const fetchPlotDetails = async() => {
+    console.log(id.pid);
+    const plotdata = await fetchPlotById(id.pid);
+    console.log(plotdata);
+    setPlotName(plotdata.name);
+    setOwnerName(plotdata.creatorId.toString());
+    setBuyPercentageDistributed(parseInt(plotdata.availableStocks.toString()) - parseInt(plotdata.totalQuantity.toString()));
+    console.log(plotName);
+    console.log(ownerName);
+  }
 
   const [holders, setHolders] = useState([
     {
@@ -42,6 +62,7 @@ const BuyFromPlotPage = () => {
 
   return (
     <>
+      <button onClick={fetchPlotDetails}>Refresh</button>
       <div className={styles.studentDashboardContainer}>
         <Modal
         isOpen={isModalOpen}
@@ -100,13 +121,13 @@ const BuyFromPlotPage = () => {
             <span className={styles.detailsHeading}>Property Details</span>
             <div className={styles.detailsBoxContent}>
               <span className={styles.key}>Plot ID: </span>
-              <span className={styles.name}></span>
+              <span className={styles.name}>{id.pid}</span>
               <span className={styles.key}>Plot Name: </span>
-              <span className={styles.name}></span>
-              <span className={styles.key}>Owner Name: </span>
-              <span className={styles.name}></span>
+              <span className={styles.name}>{plotName}</span>
+              <span className={styles.key}>Owner Id: </span>
+              <span className={styles.name}>{ownerName}</span>
               <span className={styles.key}>Percentage Distributed: </span>
-              <span className={styles.name}></span>
+              <span className={styles.name}>{percentageDistributed}</span>
               <span className={styles.key}>No of holders: </span>
               <span className={styles.name}>{holders.length}</span>
             </div>
