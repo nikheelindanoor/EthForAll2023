@@ -8,6 +8,8 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import Plots from './pages/Plots/Plots';
 import SellingsPage from './pages/SellingsPage/SellingsPage';
 import Holdings from './pages/Holdings/Holdings';
+import BuyFromPlotPage from './pages/BuyFromPlotPage/BuyFromPlotPage';
+import Navbar from './components/Navbar/Navbar';
 
 const App = () => {
   const auth = useAuth();
@@ -24,6 +26,7 @@ const App = () => {
       path: "/register",
       element: (
         <>
+        <Navbar/>
           <Register />
         </>
       ),
@@ -57,6 +60,14 @@ const App = () => {
       element: (
         <>
           <Holdings />
+        </>
+      ),
+    },
+    {
+      path: "/buyfrom/:pid",
+      element: (
+        <>
+          <BuyFromPlotPage />
         </>
       ),
     },

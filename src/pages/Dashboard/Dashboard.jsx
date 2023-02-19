@@ -44,11 +44,12 @@ const Dashboard = () => {
 
 	useEffect(() => {
 		if (currentAccount === "") {
+			console.log("connecting with wallet")
 			connectUsingArcana();
 		} else {
-			fetchUser();
-			fetchHoldings();
-			fetchSellings();
+			// fetchUser();
+			// fetchHoldings();
+			// fetchSellings();
 		}
 	}, [currentAccount]);
 

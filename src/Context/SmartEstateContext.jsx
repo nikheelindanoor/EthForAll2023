@@ -39,14 +39,18 @@ export const SmartEstateProvider = ({ children }) => {
 	const connectUsingArcana = async () => {
 		console.log("connecting...");
 		try {
-			const provider = await auth.connect();
-			console.log(provider);
-			console.log({ provider });
-			setCurrentAccount(auth.user.address);
+			const arcanaProvider = await auth.connect();
 		} catch (error) {
 			console.log({ error });
 		}
 	};
+
+	useEffect(() => {
+		if(auth.user){
+			console.log(auth);
+			setCurrentAccount(auth.user.address);
+		}
+	}, [auth]);
 
 	const registerUser = async (userName, mobileNo, aadharNo, aadharCID) => {
 		const contract = await connectingWithSmartContract();
